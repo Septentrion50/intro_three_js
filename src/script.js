@@ -3,6 +3,16 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'dat.gui'
 
+// Loading
+const textureLoader = new THREE.TextureLoader();
+
+const normalTexture = textureLoader.load('/textures/MetalSpottyDiscoloration001_NRM_3K_METALNESS.jpg');
+const metalTexture = textureLoader.load('/textures/MetalSpottyDiscoloration001_METALNESS_3K_METALNESS.jpg');
+const colorTexture = textureLoader.load('/textures/MetalSpottyDiscoloration001_COL_3K_METALNESS.jpg');
+const roughnessTexture = textureLoader.load('/textures/MetalSpottyDiscoloration001_ROUGHNESS_3K_METALNESS.jpg')
+const envTexture = textureLoader.load('/textures/studio_small_04_4k.hdr')
+envTexture.mapping = THREE.EquirectangularReflectionMapping;
+
 // Debug
 const gui = new dat.GUI()
 
@@ -13,12 +23,16 @@ const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 
 // Objects
-const geometry = new THREE.TorusGeometry( .7, .2, 16, 100 );
+const geometry = new THREE.SphereBufferGeometry(.5, 64, 64);
 
 // Materials
 
-const material = new THREE.MeshBasicMaterial()
-material.color = new THREE.Color(0xff0000)
+const material = new THREE.MeshStandardMaterial();
+material.map = colorTexture;
+material.metalnessMap = metalTexture;
+material.roughnessMap = roughnessTexture;
+material.normalMap = normalTexture;
+material.envMap = envTexture;
 
 // Mesh
 const sphere = new THREE.Mesh(geometry,material)
@@ -26,7 +40,7 @@ scene.add(sphere)
 
 // Lights
 
-const pointLight = new THREE.PointLight(0xffffff, 0.1)
+const pointLight = new THREE.PointLight(0xffffff, 0.3)
 pointLight.position.x = 2
 pointLight.position.y = 3
 pointLight.position.z = 4
@@ -73,7 +87,8 @@ scene.add(camera)
  * Renderer
  */
 const renderer = new THREE.WebGLRenderer({
-    canvas: canvas
+    canvas: canvas,
+    alpha: true
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
